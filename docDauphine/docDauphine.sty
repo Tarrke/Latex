@@ -1,0 +1,159 @@
+%%%
+%%% Package Doc Dauphine : permet la gestion de documents de type articles pour l'Université Paris Dauphine
+%%% Réalisé par : JC Gay
+%%% Version : 0.2
+%%% Mise à jour le 15/03/2012
+%%%
+
+%%% To Do List:
+%%% 
+
+%%% Informations générales
+\NeedsTeXFormat{LaTeX2e}                 %
+\ProvidesPackage{docDauphine}[20120315]  %
+
+\lccode"2019="2019 			% Permet de correctement couper les mots contenant des <<'>>
+
+%%% Chargement des extensions
+\RequirePackage{xltxtra}          % XeLaTeX
+\RequirePackage{graphicx}         % pour les images
+\RequirePackage{fancyhdr}         % En-têtes et pieds de pages
+\RequirePackage{french}           % ici on parle et on écrit français
+\RequirePackage{lastpage}         % pour avoir le numéro de la dernière page
+\RequirePackage{color}            % pour mettre du rouge sur la DR
+\RequirePackage{longtable}        % pour le tableau de gestion de document
+
+\pagestyle{fancy}
+
+% \RequirePackage{url}
+\RequirePackage[hyperfootnotes=false,bookmarks=true,backref=nonepagebackref=false,bookmarksopen=false,colorlinks]{hyperref}
+\let\urlorig\url
+\renewcommand{\url}[1]{\english\urlorig{#1}\french}
+\newcommand{\email}[1]{\href{mailto:#1}{\nolinkurl{#1}}}
+
+%%% Chargement des extensions conditionnelles
+% \newif\if@algo     \@algofalse
+% \newif\if@listings \@listingsfalse
+
+%%% Déclaration des options
+% \DeclareOption{listings}{\@listingstrue}
+% \DeclareOption{algo}{\@algotrue}
+\ProcessOptions
+
+% \if@algo
+%   \RequirePackage{algorithm}
+%   \RequirePackage{algorithmic}
+%   \RequirePackage{mes-commandes-algo}
+% \fi
+% 
+% \if@listings
+%   \RequirePackage{listings}
+%   \RequirePackage{verbatim}
+%   \RequirePackage{moreverb}
+%   \RequirePackage{mes-commandes-listings}
+% \fi
+
+
+%%% Commandes perso :
+%%% Titre plus court pour être placé dans les headers
+\makeatletter
+\newcommand{\stitle}{\@title}
+\makeatother
+%%%
+
+%%% Marquage de diffusion restreinte !
+\makeatletter
+\newcommand{\diffusionRestreinte}{\cfoot{\textcolor{red}{\textbf{Diffusion Restreinte}\hfill\thepage/\pageref{LastPage} }}\rfoot{}}
+\makeatother
+%%%
+
+%%% Permet d'insérer une remarque au cours de la création du document.
+\makeatletter
+\newif\if@rmks		% Booléen pour affichage ou non des commentaires
+\@rmksfalse		% Par défaut on compile sans les commentaires
+
+\newcommand{\rmk}[1]{ 	% Fonction d'affichage des commentaires selon la position du booléen
+  \if@rmks
+    \textbf{\textit{#1}}
+  \fi
+}
+
+\newcommand{\displayRemarks}{\@rmkstrue}
+\newcommand{\undisplayRemarks}{\@rmksfalse}
+
+\makeatother
+%%%
+
+%%% Définition des en-têtes et des pieds de pages
+\makeatletter
+\lhead{\includegraphics[scale=0.25]{logoDauphinev2}}
+\chead{}
+\rhead{\vfill\stitle\vfill}
+\lfoot{}
+\cfoot{}
+\rfoot{\thepage/\pageref{LastPage}}
+\makeatother
+\renewcommand{\headrulewidth}{0.4pt} % trait de taille 0.4 entre le header et le texte
+\renewcommand{\footrulewidth}{0pt}   % pas de trait entre le texte et le footer
+
+\setlength{\headheight}{49pt}
+%%% End of header and footer definition
+
+%%% Page de garde personnalisée pour un article
+\date{} % on place par défaut une date vide
+\makeatletter
+\def\maketitle{ % Pour un document court un titre simple suffit
+  \thispagestyle{empty}
+  \begin{center}
+    \includegraphics[width=0.3\textwidth]{logoDauphine} \\
+    {\LARGE{\textbf{\@title}}} \vskip 0.5cm
+    {\Large \@author} \vskip 0.5cm
+    {\@date}
+  \end{center}
+  \vspace*{0cm}
+}
+
+\def\maketitlepage{ % Page de garde pour un document officiel plus long
+  \thispagestyle{empty}
+  \begin{center}
+    \vfill
+    \vfill
+
+    \includegraphics[width=0.45\textwidth]{logoDauphine} \vfill
+    {\Huge{\textbf{\@title}}} \vskip 0.5cm
+    {\Large \@author} \vskip 0.5cm
+    {\@date}
+    \vfill
+    \vfill
+    \vfill
+    \vfill
+  \end{center}
+  \newpage
+}
+
+\makeatother
+%%% Fin de la page de garde
+
+%%% Gestion du tableau des versions
+\makeatletter
+\newtoks\tab@toks
+\newcommand*\init@toks{\tab@toks{\begin{longtable}{p{1.7cm}p{1.2cm}p{\dimexpr\linewidth-6\tabcolsep-4\arrayrulewidth-2.9cm}}\hline Date&Auteur&Commentaire\\\hline\endhead}}
+\init@toks
+\newcommand*\addline[3]{\tab@toks\expandafter{\the\tab@toks#1&#2&#3\\}}
+\newcommand*\makeGestion{\noindent\the\tab@toks\hline\end{longtable}\init@toks}
+\makeatother
+%%% Fin du tableau des versions
+
+%%% Utilisation :
+% \addline{16-03-2012}{auth1}{commentaire1}
+% \addline{17-03-2012}{auth2}{commentaire2}
+% \addline{17-03-2012}{auth3}{commentaire3}
+% \addline{18-03-2012}{auth4}{commentaire4}
+% 
+% \begin{document}
+% 
+% \makeGestion
+% 
+% \end{document}
+
+\endinput % fin du package
